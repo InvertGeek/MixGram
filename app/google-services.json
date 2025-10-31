@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "3895985281",
+    "project_id": "mixgram-2d48b",
+    "storage_bucket": "mixgram-2d48b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:3895985281:android:e2bd58fa289c2cfcd7f980",
+        "android_client_info": {
+          "package_name": "com.donut.mixgram"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjQ2aD65Rok7VDXYDdnSxlpmda-YfzRSE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
