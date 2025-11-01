@@ -8,21 +8,20 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 
 class MixFileSelector(activity: MixActivity) {
     private var fileSelector: ActivityResultLauncher<Array<String>>
-    private var callback: (uri: Uri) -> Unit = { }
+    private var callback: (uri: List<Uri>) -> Unit = { }
 
     init {
-        fileSelector = activity.registerForActivityResult(ActivityResultContracts.OpenDocument()) {
-            it?.let {
+        fileSelector =
+            activity.registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) {
                 callback(it)
             }
-        }
     }
 
     fun unregister() {
         fileSelector.unregister()
     }
 
-    suspend fun openSelect() = suspendCancellableCoroutine<Uri> { cont ->
+    suspend fun openSelect() = suspendCancellableCoroutine { cont ->
         this.callback = {
             cont.resumeWith(Result.success(it))
         }
@@ -32,7 +31,7 @@ class MixFileSelector(activity: MixActivity) {
 
     fun openSelect(
         array: Array<String> = arrayOf("*/*"),
-        callback: (uri: Uri) -> Unit,
+        callback: (uri: List<Uri>) -> Unit,
     ) {
         this.callback = callback
         fileSelector.launch(array)

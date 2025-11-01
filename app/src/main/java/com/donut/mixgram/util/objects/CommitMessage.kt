@@ -1,6 +1,5 @@
 package com.donut.mixgram.util.objects
 
-import com.donut.mixfile.server.core.objects.MixShareInfo
 import com.donut.mixfile.server.core.objects.MixShareInfo.Companion.ENCODER
 import com.donut.mixfile.server.core.utils.parseJsonObject
 import com.donut.mixfile.server.core.utils.toJsonString
@@ -20,7 +19,7 @@ data class CommitMessage(
     val date: Long
 ) {
 
-    fun tryDecrypt(key: String): UserMessage? {
+    fun tryDecrypt(key: ByteArray, group: ChatGroup): UserMessage? {
         if (message.isEmpty()) {
             return null
         }
@@ -29,17 +28,21 @@ data class CommitMessage(
         if (decoded.isEmpty()) {
             return null
         }
-        val decryptedMessage = decryptAES(decoded, ENCODER.decode(key)) ?: return null
 
-        return decryptedMessage.decodeToString().parseJsonObject<UserMessage>().apply {
+        val decryptedMessage =
+            decryptAES(decoded, key)?.decodeToString() ?: return null
+
+        return decryptedMessage.parseJsonObject<UserMessage>().apply {
             commitMessage = this@CommitMessage
+            this.group = group
+            decryptedMsg = decryptedMessage
         }
     }
 
-    fun decrypt(key: String): UserMessage {
+    fun decrypt(key: ByteArray, group: ChatGroup): UserMessage {
 
         ignoreError {
-            val result = tryDecrypt(key)
+            val result = tryDecrypt(key, group)
             if (result != null) {
                 return result
             }
@@ -50,7 +53,8 @@ data class CommitMessage(
             userName = author,
             message = listOf(message),
             valid = false,
-            commitMessage = this
+            commitMessage = this,
+            group = group
         )
     }
 }
@@ -59,13 +63,21 @@ data class CommitMessage(
 @Serializable
 data class UserMessage(
     val date: Long = System.currentTimeMillis(),
-    val avatar: MixShareInfo? = null,
+    val avatar: String? = null,
     val userName: String = "未知",
     val message: List<String> = listOf(""),
     var valid: Boolean = true,
     @kotlinx.serialization.Transient
+    var group: ChatGroup? = null,
+    @kotlinx.serialization.Transient
+    var decryptedMsg: String = "",
+    @kotlinx.serialization.Transient
     var commitMessage: CommitMessage? = null,
 ) {
+
+    suspend fun delete() {
+        group?.deleteMessage(this)
+    }
 
     val isMe get() = userName.contentEquals(CHAT_USER_NAME)
 

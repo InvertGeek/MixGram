@@ -8,6 +8,8 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -15,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -33,6 +36,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -156,6 +160,23 @@ fun OnResume(block: () -> Unit) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun InfoText(key: String, value: String) {
+    FlowRow {
+        Text(text = key, fontSize = 14.sp, color = Color(117, 115, 115, 255))
+        Text(
+            text = value,
+            color = colorScheme.primary.copy(alpha = 0.8f),
+            textDecoration = TextDecoration.Underline,
+            fontSize = 14.sp,
+            modifier = Modifier.clickable {
+                value.copyToClipboard()
+            }
+        )
+    }
+}
+
 @Composable
 @NonRestartableComposable
 fun AsyncEffect(
@@ -222,6 +243,15 @@ fun showConfirmDialog(title: String, subtitle: String = "", onConfirm: () -> Uni
         show()
     }
 
+}
+
+fun showTipDialog(title: String, subtitle: String = ""){
+    MixDialogBuilder(title, subtitle).apply {
+        setPositiveButton("确定") {
+            closeDialog()
+        }
+        show()
+    }
 }
 
 fun showErrorDialog(e: Throwable, title: String = "发生错误") {

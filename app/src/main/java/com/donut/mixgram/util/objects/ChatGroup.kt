@@ -1,10 +1,8 @@
 package com.donut.mixgram.util.objects
 
 import com.donut.mixfile.server.core.aes.generateRandomByteArray
-import com.donut.mixfile.server.core.objects.MixShareInfo
 import com.donut.mixfile.server.core.objects.MixShareInfo.Companion.ENCODER
 import com.donut.mixfile.server.core.utils.parseJsonObject
-import com.donut.mixfile.server.core.utils.resolveMixShareInfo
 import com.donut.mixfile.server.core.utils.toJsonString
 import com.donut.mixgram.core.Core
 import com.donut.mixgram.util.CHAT_USER_AVATAR
@@ -20,7 +18,6 @@ data class ChatGroup(
     val repoUrl: String,
     val sshKey: String,
     val name: String,
-    val avatar: MixShareInfo? = null,
     val aesKey: String = ENCODER.encode(generateRandomByteArray(32)),
     val commitsLimit: Int = 1000,
     val date: Long = System.currentTimeMillis(),
@@ -31,7 +28,7 @@ data class ChatGroup(
         fun parseShareCode(shareCode: String): ChatGroup? {
             catchError {
                 val json =
-                    ENCODER.decode(shareCode.substringAfter("://")).decodeToString()
+                    ENCODER.decode(shareCode.substringAfter("://").trim()).decodeToString()
                 return json.parseJsonObject()
             }
             return null
@@ -45,14 +42,13 @@ data class ChatGroup(
     suspend fun sendMessage(
         message: List<String>,
         userName: String = CHAT_USER_NAME,
-        avatar: MixShareInfo? = resolveMixShareInfo(
-            CHAT_USER_AVATAR
-        )
+        avatar: String? = CHAT_USER_AVATAR
     ) {
         val userMsg = UserMessage(
             userName = userName,
             avatar = avatar,
-            message = message
+            message = message,
+            group = this
         )
 
         val encryptedMsg = userMsg.encrypt(aesKey)
@@ -63,9 +59,7 @@ data class ChatGroup(
         message: UserMessage,
         newMessage: List<String>,
         userName: String = CHAT_USER_NAME,
-        avatar: MixShareInfo? = resolveMixShareInfo(
-            CHAT_USER_AVATAR
-        ),
+        avatar: String? = CHAT_USER_AVATAR,
     ): Boolean {
 
         val hash = message.commitMessage?.hash ?: return false
@@ -73,7 +67,8 @@ data class ChatGroup(
         val userMsg = UserMessage(
             userName = userName,
             avatar = avatar,
-            message = newMessage
+            message = newMessage,
+            group = this
         )
         val encryptedMsg = userMsg.encrypt(aesKey)
         editCommit(hash, encryptedMsg)
@@ -89,8 +84,9 @@ data class ChatGroup(
 
     suspend fun fetchMessages(): List<UserMessage>? {
         val commits = this.fetchCommits() ?: return null
-        val messageList = commits.map { it.decrypt(aesKey) }
-        return messageList.reversed()
+        val key = ENCODER.decode(aesKey)
+        val messageList = commits.map { it.decrypt(key, this) }
+        return messageList
     }
 
     fun updateAuthorInfo() {

@@ -24,7 +24,69 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.donut.mixgram.util.formatFileSize
+import okhttp3.Interceptor
+import okhttp3.MediaType
+import okhttp3.Response
+import okhttp3.ResponseBody
+import okio.Buffer
+import okio.BufferedSource
+import okio.ForwardingSource
+import okio.Source
+import okio.buffer
 
+
+class ProgressInterceptor(private val progressListener: ProgressListener) : Interceptor {
+
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val originalResponse = chain.proceed(chain.request())
+        return originalResponse.newBuilder()
+            .body(ProgressResponseBody(originalResponse.body!!, progressListener))
+            .build()
+    }
+}
+
+class ProgressResponseBody(
+    private val responseBody: ResponseBody,
+    private val progressListener: ProgressListener,
+) : ResponseBody() {
+
+    private var bufferedSource: BufferedSource? = null
+    override fun contentLength(): Long {
+        return responseBody.contentLength()
+    }
+
+    override fun contentType(): MediaType? {
+        return responseBody.contentType()
+    }
+
+    override fun source(): BufferedSource {
+        if (bufferedSource == null) {
+            bufferedSource = source(responseBody.source()).buffer()
+        }
+        return bufferedSource!!
+    }
+
+    private fun source(source: Source): Source {
+        return object : ForwardingSource(source) {
+            var totalBytesRead = 0L
+
+            override fun read(sink: Buffer, byteCount: Long): Long {
+                val bytesRead = super.read(sink, byteCount)
+                totalBytesRead += if (bytesRead != -1L) bytesRead else 0
+                progressListener.update(
+                    totalBytesRead,
+                    responseBody.contentLength(),
+                    bytesRead == -1L
+                )
+                return bytesRead
+            }
+        }
+    }
+}
+
+fun interface ProgressListener {
+    fun update(bytesRead: Long, contentLength: Long, done: Boolean)
+}
 
 class ProgressContent(
     private var tip: String = "下载中",
@@ -38,14 +100,17 @@ class ProgressContent(
 
 
     val ktorListener: suspend (bytesWritten: Long, bytesTotal: Long?) -> Unit = { bytes, length ->
-        updateProgress(bytes, length ?: 1)
+        updateProgress(bytes, length ?: 0)
     }
 
+    val interceptor = ProgressInterceptor { bytes, length, done ->
+        updateProgress(bytes, length)
+    }
 
     fun updateProgress(written: Long = bytesWritten, total: Long = contentLength) {
         bytesWritten = written
-        contentLength = total.coerceAtLeast(1)
-        progress = bytesWritten.toFloat() / contentLength.toFloat()
+        contentLength = total
+        progress = bytesWritten.toFloat() / contentLength.coerceAtLeast(1).toFloat()
     }
 
     @Composable
@@ -64,7 +129,7 @@ class ProgressContent(
 
     fun increaseBytesWritten(bytes: Long, total: Long) {
         bytesWritten += bytes
-        contentLength = total.coerceAtLeast(1)
+        contentLength = total
         updateProgress()
     }
 

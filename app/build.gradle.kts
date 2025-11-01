@@ -23,8 +23,8 @@ android {
 
     buildTypes {
         release {
-//            isMinifyEnabled = true
-//            isShrinkResources = true
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -75,7 +75,7 @@ dependencies {
     implementation("io.coil-kt:coil-gif:2.6.0")
     implementation("io.coil-kt:coil-svg:2.6.0")
     implementation("io.coil-kt:coil-video:2.6.0")
-
+    implementation("io.sanghun:compose-video:1.2.0")
     implementation("androidx.media3:media3-exoplayer:1.8.0") // [Required] androidx.media3 ExoPlayer dependency
     implementation("androidx.media3:media3-session:1.8.0") // [Required] MediaSession Extension dependency
     implementation("androidx.media3:media3-ui:1.8.0") // [Required] Base Player UI

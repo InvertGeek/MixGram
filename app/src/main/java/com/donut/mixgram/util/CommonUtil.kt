@@ -239,6 +239,43 @@ fun String.getFileExtension(): String {
     return if (index == -1) "" else this.substring(index + 1).lowercase()
 }
 
+fun extractNumber(str: String, start: Int): Long {
+    var result = 0L
+    var i = start
+    while (i < str.length && str[i].isDigit()) {
+        result = result * 10 + (str[i] - '0')
+        i++
+    }
+    return result
+}
+
+
+fun String.compareByName(str2: String): Int {
+    var i1 = 0
+    var i2 = 0
+    val str1 = this
+    while (i1 < str1.length && i2 < str2.length) {
+        // 处理数字部分
+        val char1 = str1[i1]
+        val char2 = str2[i2]
+        if (char1.isDigit() && char2.isDigit()) {
+            val num1 =
+                extractNumber(str1, i1).also { i1 += it.toString().length }
+            val num2 =
+                extractNumber(str2, i2).also { i2 += it.toString().length }
+            //相等则继续提取下个数字进行比较
+            if (num1 != num2) return num1.compareTo(num2)
+        }
+        // 处理非数字部分
+        else {
+            if (char1 != char2) return char1.compareTo(char2)
+            i1++
+            i2++
+        }
+    }
+    return str1.length.compareTo(str2.length)
+}
+
 
 inline fun catchError(tag: String = "", block: () -> Unit) {
     try {

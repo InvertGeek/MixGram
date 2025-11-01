@@ -2,6 +2,7 @@ package com.donut.mixgram.activity.chat_page
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +14,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -24,18 +27,26 @@ import com.donut.mixgram.util.CHAT_GROUPS
 import com.donut.mixgram.util.objects.MixActivity
 
 class ChatPage : MixActivity("chat_page") {
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val groupName = intent.getStringExtra("group")
         val group = CHAT_GROUPS.find { it.name.contentEquals(groupName) }
         setContent {
             MainTheme {
+                val focusManager = LocalFocusManager.current
                 Scaffold(
                     bottomBar = {
                         if (group == null) {
                             return@Scaffold
                         }
                         SendMessage(group)
+                    },
+                    modifier = Modifier.pointerInput(Unit) {
+                        detectTapGestures {
+                            focusManager.clearFocus()
+                        }
                     }
                 ) { padValue ->
                     Column(

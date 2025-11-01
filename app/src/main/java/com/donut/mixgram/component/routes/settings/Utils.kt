@@ -23,28 +23,46 @@ import com.donut.mixgram.component.common.MixDialogBuilder
 import com.donut.mixgram.util.CHAT_USER_NAME
 import com.donut.mixgram.util.showToast
 
-fun setChatUserName() {
-    MixDialogBuilder("设置聊天用户名").apply {
-        var userName by mutableStateOf(CHAT_USER_NAME)
+
+fun setStringValue(
+    title: String,
+    value: String,
+    label: String,
+    onFinish: (String) -> Unit,
+    maxLines: Int = 1,
+    subTitle: String = "",
+) {
+    MixDialogBuilder(title, subtitle = subTitle).apply {
+        var input by mutableStateOf(value)
         setContent {
             OutlinedTextField(
-                value = userName,
+                value = input,
                 onValueChange = {
-                    userName = it
+                    input = it
                 },
-                maxLines = 1,
-                label = { Text(text = "聊天用户名") },
+                maxLines = maxLines,
+                label = { Text(text = label) },
                 modifier = Modifier.fillMaxWidth()
             )
         }
         setDefaultNegative()
         setPositiveButton("确定") {
-            CHAT_USER_NAME = userName.trim().take(20)
-            showToast("设置成功")
+            onFinish(input)
             closeDialog()
         }
         show()
     }
+}
+
+fun setChatUserName() {
+    setStringValue(
+        "设置聊天用户名",
+        CHAT_USER_NAME,
+        "聊天用户名",
+        {
+            CHAT_USER_NAME = it.trim().take(20)
+            showToast("设置成功")
+        })
 }
 
 @OptIn(ExperimentalLayoutApi::class)

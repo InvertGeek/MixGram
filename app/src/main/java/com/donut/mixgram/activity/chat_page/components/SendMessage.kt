@@ -21,8 +21,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.donut.mixgram.appScope
 import com.donut.mixgram.util.errorDialog
 import com.donut.mixgram.util.ignoreError
+import com.donut.mixgram.util.mixfile.selectFilesUpload
 import com.donut.mixgram.util.objects.ChatGroup
 import com.donut.mixgram.util.showToast
 import kotlinx.coroutines.Dispatchers
@@ -56,30 +58,45 @@ fun SendMessage(group: ChatGroup) {
 
         val scope = rememberCoroutineScope()
 
+        fun sendMsg(message: List<String>, onError: () -> Unit = {}) {
+            if (message.isEmpty()) {
+                return
+            }
+            scope.launch(Dispatchers.IO) {
+                sending = true
+                errorDialog(
+                    "发送失败",
+                    onError = {
+                        withContext(Dispatchers.Main) {
+                            onError()
+                        }
+                    }) {
+                    group.sendMessage(message)
+                    showToast("发送成功")
+                }
+                sending = false
+                ignoreError {
+                    group.trimCommits(group.commitsLimit)
+                }
+            }
+        }
+
 
         Button(
-            enabled = input.text.isNotEmpty(),
+            enabled = !sending,
             onClick = {
                 val text = input.text
-                input = TextFieldValue("")
-                scope.launch(Dispatchers.IO) {
-                    sending = true
-                    errorDialog(
-                        "发送失败",
-                        onError = {
-                            withContext(Dispatchers.Main) {
-                                input = TextFieldValue(text)
-                            }
-                        }) {
-                        group.sendMessage(listOf(text))
-                        showToast("发送成功")
+                if (text.isEmpty()) {
+                    appScope.launch(Dispatchers.Main) {
+                        val files = selectFilesUpload()
+                        sendMsg(files.map { it.toString() })
                     }
-                    sending = false
-                    ignoreError {
-                        group.trimCommits(group.commitsLimit)
-                    }
+                    return@Button
                 }
-
+                input = TextFieldValue("")
+                sendMsg(listOf(text)) {
+                    input = TextFieldValue(text)
+                }
             },
             shape = RoundedCornerShape(50)
         ) {
@@ -87,7 +104,7 @@ fun SendMessage(group: ChatGroup) {
                 CircularProgressIndicator(modifier = Modifier.size(20.dp))
                 return@Button
             }
-            Text("发送")
+            Text(if (input.text.isEmpty()) "选择文件" else "发送")
         }
     }
 }

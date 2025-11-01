@@ -12,6 +12,7 @@ import com.donut.mixgram.component.routes.settings.setChatUserName
 import com.donut.mixgram.ui.theme.Theme
 import com.donut.mixgram.ui.theme.currentTheme
 import com.donut.mixgram.ui.theme.enableAutoDarkMode
+import com.donut.mixgram.util.CHAT_USER_NAME
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -19,7 +20,7 @@ val MixSettings = MixNavPage(
     gap = 10.dp,
     horizontalAlignment = Alignment.CenterHorizontally
 ) {
-    SettingButton(text = "聊天用户名") {
+    SettingButton(text = "聊天用户名: ${CHAT_USER_NAME}") {
         setChatUserName()
     }
 
