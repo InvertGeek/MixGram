@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import com.donut.mixfile.ui.routes.settings.MixSettings
+import com.donut.mixgram.component.routes.About
 import com.donut.mixgram.component.routes.group_list.GroupList
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -32,6 +33,8 @@ fun NavContent(innerPaddingValues: PaddingValues) {
             GroupList(this)
 
             MixSettings(this)
+
+            About(this)
 
         }
     }

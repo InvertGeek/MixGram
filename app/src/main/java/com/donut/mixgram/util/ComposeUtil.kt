@@ -245,7 +245,7 @@ fun showConfirmDialog(title: String, subtitle: String = "", onConfirm: () -> Uni
 
 }
 
-fun showTipDialog(title: String, subtitle: String = ""){
+fun showTipDialog(title: String, subtitle: String = "") {
     MixDialogBuilder(title, subtitle).apply {
         setPositiveButton("确定") {
             closeDialog()

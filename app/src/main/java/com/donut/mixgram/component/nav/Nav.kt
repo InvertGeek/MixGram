@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DrawerValue
@@ -28,6 +29,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.donut.mixfile.ui.routes.settings.MixSettings
+import com.donut.mixgram.component.routes.About
 import com.donut.mixgram.component.routes.group_list.GroupList
 import com.donut.mixgram.util.OnDispose
 import kotlinx.coroutines.launch
@@ -78,6 +80,7 @@ fun NavComponent() {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     NavButton("群组列表", Icons.Filled.Group, GroupList.name)
                     NavButton("设置", Icons.Filled.Settings, MixSettings.name)
+                    NavButton("关于", Icons.Filled.Info, About.name)
 
                 }
             }

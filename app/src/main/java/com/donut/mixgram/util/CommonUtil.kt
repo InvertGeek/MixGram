@@ -201,6 +201,16 @@ fun <T> List<T>.at(index: Int): T {
     return this.at(index.toLong())
 }
 
+fun getAppVersionName(context: Context): String {
+    return try {
+        val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+        packageInfo.versionName ?: "unknown"
+    } catch (e: PackageManager.NameNotFoundException) {
+        e.printStackTrace()
+        "unknown"
+    }
+}
+
 infix fun <T> List<T>.elementEquals(other: List<T>): Boolean {
     if (this.size != other.size) return false
 

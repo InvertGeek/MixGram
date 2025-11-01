@@ -26,6 +26,7 @@ import com.donut.mixgram.component.common.MixDialogBuilder
 import com.donut.mixgram.currentActivity
 import com.donut.mixgram.util.AsyncEffect
 import com.donut.mixgram.util.errorDialog
+import com.donut.mixgram.util.formatFileSize
 import com.donut.mixgram.util.getFileName
 import com.donut.mixgram.util.getFileSize
 import com.donut.mixgram.util.objects.ProgressContent
@@ -54,14 +55,20 @@ import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.coroutineContext
 
-suspend fun selectFilesUpload(): List<MixShareInfo> {
+suspend fun selectFilesUpload(
+    single: Boolean = false,
+    sizeLimit: Long? = null
+): List<MixShareInfo> {
     val files = currentActivity?.fileSelector?.openSelect() ?: listOf()
     if (files.isEmpty()) {
         return listOf()
     }
 
     return suspendCancellableCoroutine { cont ->
-        MixDialogBuilder("上传中").apply {
+        MixDialogBuilder(
+            "上传中",
+            autoClose = false
+        ).apply {
             setContent {
                 var progressContent by remember {
                     mutableStateOf(ProgressContent("上传中"))
@@ -76,20 +83,28 @@ suspend fun selectFilesUpload(): List<MixShareInfo> {
 
                 var uploaded by remember { mutableStateOf(listOf<MixShareInfo>()) }
 
-                Text("已上传: ${uploaded.size}/${files.size}")
+                if (!single && files.size > 1) {
+                    Text("已上传: ${uploaded.size}/${files.size}")
+                }
 
                 AsyncEffect {
                     files.forEach { uri ->
+                        val fileSize = errorDialog("读取文件失败") {
+                            uri.getFileSize()
+                        } ?: return@AsyncEffect
+                        if (sizeLimit != null && fileSize > sizeLimit) {
+                            showToast("超过大小限制: ${formatFileSize(sizeLimit)}")
+                            closeDialog()
+                            return@AsyncEffect
+                        }
                         withContext(Dispatchers.Main) {
                             progressContent = ProgressContent("上传中", showLoading = false)
                         }
                         val resolver = app.contentResolver
-                        val fileSize = errorDialog("读取文件失败") {
-                            uri.getFileSize()
-                        } ?: return@AsyncEffect
                         val fileStream = resolver.openInputStream(uri)
                         if (fileStream == null) {
                             showToast("打开文件失败")
+                            closeDialog()
                             return@AsyncEffect
                         }
                         val stream = StreamContent(fileStream, fileSize)
@@ -97,11 +112,15 @@ suspend fun selectFilesUpload(): List<MixShareInfo> {
                             putUploadFile(stream, uri.getFileName(), false, progressContent)
                         if (fileCode.isEmpty()) {
                             showToast("上传失败")
+                            closeDialog()
                             return@AsyncEffect
                         }
                         val shareInfo = resolveMixShareInfo(fileCode) ?: return@AsyncEffect
                         withContext(Dispatchers.Main) {
                             uploaded += shareInfo
+                        }
+                        if (single && uploaded.isNotEmpty()) {
+                            return@forEach
                         }
                     }
                     cont.resumeWith(Result.success(uploaded))

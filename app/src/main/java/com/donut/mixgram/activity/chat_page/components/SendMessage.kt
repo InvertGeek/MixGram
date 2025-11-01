@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -31,19 +32,67 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+
+var forwardMsg by mutableStateOf(listOf<String>())
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SendMessage(group: ChatGroup) {
+    HorizontalDivider()
 
     var input by remember { mutableStateOf(TextFieldValue("")) }
+
+    var sending by remember { mutableStateOf(false) }
+
+    val scope = rememberCoroutineScope()
+
+    fun sendMsg(message: List<String>, onError: () -> Unit = {}) {
+        if (message.isEmpty()) {
+            return
+        }
+        scope.launch(Dispatchers.IO) {
+            sending = true
+            errorDialog(
+                "发送失败",
+                onError = {
+                    withContext(Dispatchers.Main) {
+                        onError()
+                    }
+                }) {
+                group.sendMessage(message)
+                showToast("发送成功")
+            }
+            sending = false
+            ignoreError {
+                group.trimCommits(group.commitsLimit)
+            }
+        }
+    }
+
     // 输入区
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 0.dp, start = 10.dp, end = 10.dp, bottom = 10.dp),
+            .padding(top = 5.dp, start = 10.dp, end = 10.dp, bottom = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        if (forwardMsg.isNotEmpty()) {
+            Button(
+                enabled = !sending,
+                onClick = {
+                    val msgToSend = forwardMsg
+                    forwardMsg = listOf()
+                    sendMsg(msgToSend) {
+                        forwardMsg = msgToSend
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("发送转发信息")
+            }
+            return
+        }
 
         TextField(
             value = input,
@@ -53,33 +102,6 @@ fun SendMessage(group: ChatGroup) {
             placeholder = { Text("输入消息...") },
             shape = RoundedCornerShape(50)
         )
-
-        var sending by remember { mutableStateOf(false) }
-
-        val scope = rememberCoroutineScope()
-
-        fun sendMsg(message: List<String>, onError: () -> Unit = {}) {
-            if (message.isEmpty()) {
-                return
-            }
-            scope.launch(Dispatchers.IO) {
-                sending = true
-                errorDialog(
-                    "发送失败",
-                    onError = {
-                        withContext(Dispatchers.Main) {
-                            onError()
-                        }
-                    }) {
-                    group.sendMessage(message)
-                    showToast("发送成功")
-                }
-                sending = false
-                ignoreError {
-                    group.trimCommits(group.commitsLimit)
-                }
-            }
-        }
 
 
         Button(

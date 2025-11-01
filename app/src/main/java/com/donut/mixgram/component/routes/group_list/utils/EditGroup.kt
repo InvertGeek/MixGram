@@ -1,155 +1,26 @@
-package com.donut.mixgram.component.routes.group_list
+package com.donut.mixgram.component.routes.group_list.utils
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.donut.mixgram.appScope
 import com.donut.mixgram.component.common.MixDialogBuilder
-import com.donut.mixgram.component.routes.settings.SettingButton
-import com.donut.mixgram.component.routes.settings.setStringValue
+import com.donut.mixgram.component.routes.settings.utils.SettingButton
+import com.donut.mixgram.component.routes.settings.utils.setStringValue
 import com.donut.mixgram.util.CHAT_GROUPS
 import com.donut.mixgram.util.InfoText
-import com.donut.mixgram.util.addChatGroup
 import com.donut.mixgram.util.editChatGroup
 import com.donut.mixgram.util.errorDialog
 import com.donut.mixgram.util.formatTime
 import com.donut.mixgram.util.objects.ChatGroup
 import com.donut.mixgram.util.showConfirmDialog
-import com.donut.mixgram.util.showTipDialog
 import com.donut.mixgram.util.showToast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Date
-
-fun importGroup() {
-    var text by mutableStateOf("")
-    MixDialogBuilder("导入群组").apply {
-        setContent {
-            OutlinedTextField(
-                value = text,
-                onValueChange = {
-                    text = it.trim()
-                },
-                label = {
-                    Text("输入分享码")
-                },
-                modifier = Modifier.fillMaxWidth(),
-                maxLines = 5
-            )
-        }
-        setDefaultNegative("取消")
-        setPositiveButton("确定导入") {
-            val group = ChatGroup.parseShareCode(text)
-            if (group == null) {
-                showToast("解析分享码失败")
-                return@setPositiveButton
-            }
-            if (CHAT_GROUPS.any { it.name.contentEquals(group.name) }) {
-                showTipDialog("相同群名称已经存在", "群名称: ${group.name}")
-                return@setPositiveButton
-            }
-            addChatGroup(group)
-            closeDialog()
-            showTipDialog("导入成功", "群名称: ${group.name}")
-        }
-        show()
-    }
-}
-
-fun createOrAddGroup() {
-    MixDialogBuilder("选择操作").apply {
-        setPositiveButton("导入群组") {
-            importGroup()
-            closeDialog()
-        }
-        setNegativeButton("创建群组") {
-            createGroup()
-            closeDialog()
-        }
-        show()
-    }
-}
-
-
-fun createGroup() {
-    MixDialogBuilder("创建群组").apply {
-
-        var groupName by mutableStateOf("")
-
-        var sshKey by mutableStateOf("")
-
-        var repoUrl by mutableStateOf("")
-
-        setContent {
-            OutlinedTextField(
-                value = groupName,
-                onValueChange = {
-                    groupName = it
-                },
-                modifier = Modifier.fillMaxWidth(),
-                label = {
-                    Text(text = "群组名称")
-                },
-                maxLines = 2,
-            )
-            OutlinedTextField(
-                value = repoUrl,
-                onValueChange = {
-                    repoUrl = it
-                },
-                modifier = Modifier.fillMaxWidth(),
-                label = {
-                    Text(text = "仓库地址")
-                },
-                maxLines = 3,
-            )
-            OutlinedTextField(
-                value = sshKey,
-                onValueChange = {
-                    sshKey = it
-                },
-                modifier = Modifier.fillMaxWidth(),
-                label = {
-                    Text(text = "SSH私钥")
-                },
-                maxLines = 5,
-            )
-        }
-
-        setPositiveButton("创建群组") {
-            if (repoUrl.isEmpty()) {
-                showToast("仓库地址不能为空")
-                return@setPositiveButton
-            }
-            if (groupName.isEmpty()) {
-                showToast("群组名称不能为空")
-                return@setPositiveButton
-            }
-            if (sshKey.isEmpty()) {
-                showToast("SSH私钥不能为空")
-                return@setPositiveButton
-            }
-            val group = ChatGroup(
-                repoUrl = repoUrl.trim(),
-                name = groupName.trim(),
-                sshKey = sshKey.trim()
-            )
-            addChatGroup(group)
-            showToast("创建成功")
-            closeDialog()
-        }
-
-        show()
-    }
-}
 
 fun editGroup(group: ChatGroup) {
     MixDialogBuilder("编辑群组: ${group.name}").apply {
@@ -236,18 +107,6 @@ fun editGroup(group: ChatGroup) {
                 showToast("删除成功")
             }
         }
-        show()
-    }
-}
-
-fun shareGroup(group: ChatGroup) {
-    MixDialogBuilder("分享群组").apply {
-        setContent {
-            Column(modifier = Modifier.fillMaxSize()) {
-                InfoText("分享码(点击复制):", group.getShareCode())
-            }
-        }
-        setDefaultNegative("关闭")
         show()
     }
 }

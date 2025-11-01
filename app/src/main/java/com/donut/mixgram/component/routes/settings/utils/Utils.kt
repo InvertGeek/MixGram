@@ -1,4 +1,4 @@
-package com.donut.mixgram.component.routes.settings
+package com.donut.mixgram.component.routes.settings.utils
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

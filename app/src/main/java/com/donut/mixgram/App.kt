@@ -11,9 +11,11 @@ import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.decode.SvgDecoder
 import coil.decode.VideoFrameDecoder
+import com.donut.mixgram.util.getAppVersionName
 import com.donut.mixgram.util.loopTask
 import com.donut.mixgram.util.mixfile.server
 import com.donut.mixgram.util.objects.MixActivity
+import com.donut.mixgram.util.objects.UpdateChecker
 import com.donut.mixgram.util.showError
 import com.donut.mixgram.util.showErrorDialog
 import com.tencent.mmkv.MMKV
@@ -37,7 +39,7 @@ val currentActivity: MixActivity?
 val app: Application
     get() = innerApp
 
-//lateinit var updateChecker: UpdateChecker
+lateinit var updateChecker: UpdateChecker
 
 class App : Application(), ImageLoaderFactory {
 
@@ -56,7 +58,7 @@ class App : Application(), ImageLoaderFactory {
         }
         innerApp = this
         server.start(false)
-//        updateChecker = UpdateChecker("InvertGeek", "MixFile", getAppVersionName(this) ?: "")
+        updateChecker = UpdateChecker("InvertGeek", "MixGram", getAppVersionName(this))
         appScope.loopTask(1000 * 60 * 10) {
             kv.clearMemoryCache()
             kv.trim()

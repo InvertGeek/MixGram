@@ -11,13 +11,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.SubcomposeAsyncImage
+import coil.request.ImageRequest
+import com.donut.mixfile.server.core.objects.MixShareInfo
+import com.donut.mixgram.activity.chat_page.components.message.files.ErrorMessage
+import com.donut.mixgram.genImageLoader
+import com.donut.mixgram.util.mixfile.downloadUrl
 
 @Composable
-fun Avatar(name: String, size: Int = 40, onClick: () -> Unit) {
-    // 简易头像占位：用首字母显示圆形背景。真实项目建议用 Coil/Glide 加载头像 url。
+fun Avatar(name: String, shareInfo: MixShareInfo? = null, size: Int = 40, onClick: () -> Unit) {
+
     val initials = name.trim().takeIf { it.isNotEmpty() }?.first()?.uppercaseChar() ?: '?'
+
     Box(
         modifier = Modifier
             .size(size.dp)
@@ -28,6 +37,23 @@ fun Avatar(name: String, size: Int = 40, onClick: () -> Unit) {
             },
         contentAlignment = Alignment.Center
     ) {
+        if (shareInfo != null && shareInfo.fileSize < 1024 * 1024) {
+            SubcomposeAsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(shareInfo.downloadUrl)
+                    .crossfade(true)
+                    .build(),
+                error = {
+                    ErrorMessage(msg = "图片加载失败")
+                },
+                contentScale = ContentScale.FillBounds,
+                imageLoader = genImageLoader(
+                    LocalContext.current
+                ),
+                contentDescription = name,
+            )
+            return
+        }
         Text(initials.toString(), color = Color.White, fontWeight = FontWeight.Bold)
     }
 }

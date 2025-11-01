@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.donut.mixfile.server.core.objects.MixShareInfo
 import com.donut.mixfile.server.core.utils.resolveMixShareInfo
+import com.donut.mixgram.activity.chat_page.components.forwardMsg
 import com.donut.mixgram.activity.chat_page.components.message.files.FileRow
 import com.donut.mixgram.appScope
 import com.donut.mixgram.component.common.MixDialogBuilder
@@ -123,17 +124,21 @@ fun MessageRow(message: UserMessage) {
                     }
 
                 }
-                setNegativeButton("删除信息") {
+                setPositiveButton("删除信息") {
                     deleteMsg {
                         closeDialog()
                     }
+                }
+                setNegativeButton("转发信息") {
+                    forwardMsg = message.message
+                    closeDialog()
                 }
                 show()
             }
         }
         if (!message.isMe) {
             // 对方：头像 + 内容（左侧）
-            Avatar(name = message.userName) {
+            Avatar(name = message.userName, shareInfo = resolveMixShareInfo(message.avatar ?: "")) {
                 handleClick()
             }
             Spacer(modifier = Modifier.width(8.dp))
@@ -156,7 +161,7 @@ fun MessageRow(message: UserMessage) {
                 TimeTip()
             }
             Spacer(modifier = Modifier.width(8.dp))
-            Avatar(name = message.userName) {
+            Avatar(name = message.userName, shareInfo = resolveMixShareInfo(message.avatar ?: "")) {
                 handleClick()
             }
         }

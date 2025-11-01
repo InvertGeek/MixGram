@@ -1,4 +1,4 @@
-package com.donut.mixgram.component.routes.group_list
+package com.donut.mixgram.component.routes.group_list.utils
 
 import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
