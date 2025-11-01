@@ -80,6 +80,9 @@ val GroupList = MixNavPage(
             }
         }
     )
+
+    Text("共 ${CHAT_GROUPS.size} 个群组", color = colorScheme.primary)
+
     LaunchedEffect(text, groups, groupSort, CHAT_GROUPS) {
         groups = if (text.trim().isNotEmpty()) {
             CHAT_GROUPS.filter {
@@ -112,7 +115,7 @@ val GroupList = MixNavPage(
             .fillMaxWidth(),
     ) {
         Text(
-            text = "排序:${groupSort}",
+            text = "排序: ${groupSort}",
             modifier = Modifier
                 .clickable {
                     openSortSelect(groupSort) {

@@ -2,11 +2,14 @@ package com.donut.mixgram.activity.chat_page.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -115,6 +118,7 @@ fun SendMessage(group: ChatGroup) {
             shape = RoundedCornerShape(50)
         )
 
+        Spacer(modifier = Modifier.width(10.dp))
 
         Button(
             enabled = !sending,
@@ -136,13 +140,14 @@ fun SendMessage(group: ChatGroup) {
                     input = TextFieldValue(text)
                 }
             },
-            shape = RoundedCornerShape(50)
+            shape = RoundedCornerShape(20),
+            elevation = ButtonDefaults.elevatedButtonElevation()
         ) {
             if (sending) {
                 CircularProgressIndicator(modifier = Modifier.size(20.dp))
                 return@Button
             }
-            Text(if (input.text.isEmpty()) "选择文件" else "发送")
+            Text(if (input.text.isEmpty()) "文件" else "发送")
         }
     }
 }

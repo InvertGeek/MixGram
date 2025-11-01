@@ -28,9 +28,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.donut.mixfile.ui.routes.settings.MixSettings
 import com.donut.mixgram.component.routes.About
 import com.donut.mixgram.component.routes.group_list.GroupList
+import com.donut.mixgram.component.routes.settings.MixSettings
 import com.donut.mixgram.util.OnDispose
 import kotlinx.coroutines.launch
 

@@ -11,6 +11,7 @@ import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.decode.SvgDecoder
 import coil.decode.VideoFrameDecoder
+import com.donut.mixgram.util.encryptGroups
 import com.donut.mixgram.util.getAppVersionName
 import com.donut.mixgram.util.loopTask
 import com.donut.mixgram.util.mixfile.server
@@ -63,9 +64,10 @@ class App : Application(), ImageLoaderFactory {
             kv.clearMemoryCache()
             kv.trim()
         }
-
+        encryptGroups()
 
     }
+
 
     override fun newImageLoader(): ImageLoader {
         return genImageLoader(this)
