@@ -115,7 +115,12 @@ suspend fun selectFilesUpload(
                             closeDialog()
                             return@AsyncEffect
                         }
-                        val shareInfo = resolveMixShareInfo(fileCode) ?: return@AsyncEffect
+                        val shareInfo = resolveMixShareInfo(fileCode)
+                        if (shareInfo == null) {
+                            showToast("上传失败")
+                            closeDialog()
+                            return@AsyncEffect
+                        }
                         withContext(Dispatchers.Main) {
                             uploaded += shareInfo
                         }

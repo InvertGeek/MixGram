@@ -20,8 +20,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.donut.mixfile.server.core.objects.MixShareInfo
 import com.donut.mixfile.server.core.utils.resolveMixShareInfo
-import com.donut.mixgram.activity.chat_page.components.forwardMsg
 import com.donut.mixgram.activity.chat_page.components.message.files.FileRow
+import com.donut.mixgram.activity.chat_page.components.presetMsg
 import com.donut.mixgram.appScope
 import com.donut.mixgram.component.common.MixDialogBuilder
 import com.donut.mixgram.util.InfoText
@@ -130,7 +130,7 @@ fun MessageRow(message: UserMessage) {
                     }
                 }
                 setNegativeButton("转发信息") {
-                    forwardMsg = message.message
+                    presetMsg = message.message
                     closeDialog()
                 }
                 show()

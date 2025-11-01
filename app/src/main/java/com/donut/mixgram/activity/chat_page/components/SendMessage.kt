@@ -39,7 +39,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-var forwardMsg by mutableStateOf(listOf<String>())
+var presetMsg by mutableStateOf(listOf<String>())
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -83,27 +83,27 @@ fun SendMessage(group: ChatGroup) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (forwardMsg.isNotEmpty()) {
+        if (presetMsg.isNotEmpty()) {
             Row(
                 horizontalArrangement = Arrangement.SpaceAround,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 OutlinedButton({
-                    forwardMsg = listOf()
+                    presetMsg = listOf()
                 }) {
-                    Text("取消转发")
+                    Text("取消发送")
                 }
                 Button(
                     enabled = !sending,
                     onClick = {
-                        val msgToSend = forwardMsg
-                        forwardMsg = listOf()
+                        val msgToSend = presetMsg
+                        presetMsg = listOf()
                         sendMsg(msgToSend) {
-                            forwardMsg = msgToSend
+                            presetMsg = msgToSend
                         }
                     },
                 ) {
-                    Text("发送转发信息")
+                    Text("发送信息")
                 }
             }
             return
@@ -131,7 +131,10 @@ fun SendMessage(group: ChatGroup) {
                 if (text.isEmpty()) {
                     appScope.launch(Dispatchers.Main) {
                         val files = selectFilesUpload()
-                        sendMsg(files.map { it.toString() })
+                        val msg = files.map { it.toString() }
+                        sendMsg(msg) {
+                            presetMsg = msg
+                        }
                     }
                     return@Button
                 }
