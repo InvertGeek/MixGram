@@ -10,6 +10,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -23,6 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.donut.mixgram.appScope
+import com.donut.mixgram.component.routes.settings.utils.setUserProfile
+import com.donut.mixgram.util.CHAT_USER_NAME
 import com.donut.mixgram.util.errorDialog
 import com.donut.mixgram.util.ignoreError
 import com.donut.mixgram.util.mixfile.selectFilesUpload
@@ -78,18 +81,27 @@ fun SendMessage(group: ChatGroup) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (forwardMsg.isNotEmpty()) {
-            Button(
-                enabled = !sending,
-                onClick = {
-                    val msgToSend = forwardMsg
-                    forwardMsg = listOf()
-                    sendMsg(msgToSend) {
-                        forwardMsg = msgToSend
-                    }
-                },
+            Row(
+                horizontalArrangement = Arrangement.SpaceAround,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("发送转发信息")
+                OutlinedButton({
+                    forwardMsg = listOf()
+                }) {
+                    Text("取消转发")
+                }
+                Button(
+                    enabled = !sending,
+                    onClick = {
+                        val msgToSend = forwardMsg
+                        forwardMsg = listOf()
+                        sendMsg(msgToSend) {
+                            forwardMsg = msgToSend
+                        }
+                    },
+                ) {
+                    Text("发送转发信息")
+                }
             }
             return
         }
@@ -107,6 +119,10 @@ fun SendMessage(group: ChatGroup) {
         Button(
             enabled = !sending,
             onClick = {
+                if (CHAT_USER_NAME.isBlank()) {
+                    setUserProfile()
+                    return@Button
+                }
                 val text = input.text
                 if (text.isEmpty()) {
                     appScope.launch(Dispatchers.Main) {

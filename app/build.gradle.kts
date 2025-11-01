@@ -56,6 +56,7 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/*"
+            excludes += "/META-INF/versions/9/**"
         }
     }
 }
@@ -66,7 +67,7 @@ dependencies {
     implementation(files("libs/mixgram.aar"))
 
     implementation("com.github.InvertGeek:mixfile-core:2.0.3")
-
+    implementation("org.bouncycastle:bcprov-jdk18on:1.82")
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
     implementation("com.tencent:mmkv:1.3.14")
     implementation("net.engawapg.lib:zoomable:1.6.1")

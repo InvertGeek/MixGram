@@ -1,18 +1,20 @@
 package com.donut.mixgram.util
 
+import org.bouncycastle.crypto.AsymmetricCipherKeyPair
+import org.bouncycastle.crypto.KeyGenerationParameters
+import org.bouncycastle.crypto.generators.Ed25519KeyPairGenerator
+import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters
+import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
-import java.math.BigInteger
 import java.nio.charset.StandardCharsets
-import java.security.KeyPairGenerator
-import java.security.interfaces.ECPrivateKey
-import java.security.interfaces.ECPublicKey
-import java.security.spec.ECGenParameterSpec
+import java.security.Security
 import java.util.Base64
-import java.util.Random
+import kotlin.random.Random
 
 fun main() {
-    val (privatePem, publicLine) = generateEcdsaKeyPair("noname")
+    val (privatePem, publicLine) = generateKeyPair("noname")
     println(privatePem)
     println()
     println("Public key:")
@@ -20,79 +22,43 @@ fun main() {
 }
 
 /**
- * 生成 ECDSA (P-256) OpenSSH 密钥对
- * @param comment SSH 公钥的备注（例如用户名）
- * @return Pair(私钥PEM, 公钥行)
+ * 使用 BouncyCastle 生成 ED25519 OpenSSH 密钥对
  */
-fun generateEcdsaKeyPair(comment: String = "generated"): Pair<String, String> {
-    // 1️⃣ 生成 ECDSA P-256 密钥对
-    val kpg = KeyPairGenerator.getInstance("EC")
-    kpg.initialize(ECGenParameterSpec("secp256r1"))
-    val kp = kpg.generateKeyPair()
-    val pub = kp.public as ECPublicKey
-    val priv = kp.private as ECPrivateKey
+fun generateKeyPair(comment: String = "generated"): Pair<String, String> {
+    // 注册 BouncyCastle 提供者（只需一次）
+    Security.addProvider(BouncyCastleProvider())
+
+    // 1️⃣ 生成 ED25519 密钥对
+    val generator = Ed25519KeyPairGenerator()
+    generator.init(KeyGenerationParameters(java.security.SecureRandom(), 256))
+    val pair: AsymmetricCipherKeyPair = generator.generateKeyPair()
+
+    val privateKeyParams = pair.private as Ed25519PrivateKeyParameters
+    val publicKeyParams = pair.public as Ed25519PublicKeyParameters
+
+    val privBytes = privateKeyParams.encoded
+    val pubBytes = publicKeyParams.encoded
 
     // 2️⃣ 构建公钥 blob
-    val publicBlob = makePublicBlob(pub)
-
-    // 3️⃣ 构建 openssh 私钥块
-    val opensshKey = makeOpenSshPrivate(pub, priv, publicBlob, comment)
-    val privatePem = wrapPem(
-        "OPENSSH PRIVATE KEY",
-        Base64.getEncoder().encodeToString(opensshKey)
-    )
-
-    // 4️⃣ 公钥行
-    val publicLine = makePublicLine(pub, comment)
-
-    return privatePem to publicLine
-}
-
-/** 构造公钥 blob */
-fun makePublicBlob(pub: ECPublicKey): ByteArray {
-    val keyType = "ecdsa-sha2-nistp256"
-    val curve = "nistp256"
-    val x = toFixed(pub.w.affineX, 32)
-    val y = toFixed(pub.w.affineY, 32)
-    val point = byteArrayOf(0x04) + x + y
-
-    return buildBytes {
+    val keyType = "ssh-ed25519"
+    val pubBlob = buildBytes {
         writeString(keyType)
-        writeString(curve)
-        writeString(point)
+        writeString(pubBytes)
     }
-}
 
-/** 公钥行格式：ecdsa-sha2-nistp256 AAAA... comment */
-fun makePublicLine(pub: ECPublicKey, comment: String): String {
-    val blob = Base64.getEncoder().encodeToString(makePublicBlob(pub))
-    return "ecdsa-sha2-nistp256 $blob $comment"
-}
-
-/** 构造 OpenSSH 私钥块 */
-fun makeOpenSshPrivate(
-    pub: ECPublicKey,
-    priv: ECPrivateKey,
-    pubBlob: ByteArray,
-    comment: String
-): ByteArray {
-    val check = Random().nextInt()
-    val keyType = "ecdsa-sha2-nistp256"
-    val curve = "nistp256"
-    val point = byteArrayOf(0x04) + toFixed(pub.w.affineX, 32) + toFixed(pub.w.affineY, 32)
-    val scalar = toFixed(priv.s, 32)
-
+    // 3️⃣ 构建私钥块（OpenSSH 私钥格式）
+    val check = Random.nextInt()
     val privateBlock = buildBytes {
         writeInt(check)
         writeInt(check)
         writeString(keyType)
-        writeString(curve)
-        writeString(point)
-        writeString(scalar)
+        writeString(pubBytes)
+        writeString(privBytes + pubBytes) // OpenSSH 要求私钥+公钥拼接
         writeString(comment)
     }.withPadding(8)
 
-    return buildBytes {
+    // 4️⃣ 构建 openssh-key-v1 格式
+    val opensshKey = buildBytes {
         write("openssh-key-v1\u0000".toByteArray())
         writeString("none")      // ciphername
         writeString("none")      // kdfname
@@ -102,9 +68,19 @@ fun makeOpenSshPrivate(
         writeInt(privateBlock.size)
         write(privateBlock)
     }
+
+    // 5️⃣ 输出 PEM 和 公钥行
+    val privatePem = wrapPem(
+        "OPENSSH PRIVATE KEY",
+        Base64.getEncoder().encodeToString(opensshKey)
+    )
+    val publicLine = "$keyType ${Base64.getEncoder().encodeToString(pubBlob)} $comment"
+
+    return privatePem to publicLine
 }
 
-// ---------- 工具 ----------
+// ---------- 工具函数 ----------
+
 fun buildBytes(block: DataOutputStream.() -> Unit): ByteArray {
     val baos = ByteArrayOutputStream()
     val dout = DataOutputStream(baos)
@@ -119,14 +95,15 @@ fun DataOutputStream.writeString(bytes: ByteArray) {
     write(bytes)
 }
 
-fun toFixed(bi: BigInteger, len: Int): ByteArray {
-    val raw = bi.toByteArray()
-    return when {
-        raw.size == len -> raw
-        raw.size == len + 1 && raw[0] == 0.toByte() -> raw.copyOfRange(1, len + 1)
-        raw.size < len -> ByteArray(len - raw.size) + raw
-        else -> raw.copyOfRange(raw.size - len, raw.size)
-    }
+fun DataOutputStream.writeInt(v: Int) {
+    write(
+        byteArrayOf(
+            ((v shr 24) and 0xFF).toByte(),
+            ((v shr 16) and 0xFF).toByte(),
+            ((v shr 8) and 0xFF).toByte(),
+            (v and 0xFF).toByte()
+        )
+    )
 }
 
 fun ByteArray.withPadding(blockSize: Int): ByteArray {

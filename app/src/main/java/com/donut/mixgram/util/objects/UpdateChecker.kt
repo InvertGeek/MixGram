@@ -26,7 +26,8 @@ class UpdateChecker(author: String, repoName: String, currentVersion: String) {
      */
     val currentVersion: String = removePrefix(currentVersion)
     private var url: URL? = null
-    private val disabled: Boolean = System.getProperty("technicjelle.updatechecker.disabled") != null
+    private val disabled: Boolean =
+        System.getProperty("technicjelle.updatechecker.disabled") != null
 
     @Transient
     private var latestVersionFuture: CompletableFuture<String>? = null

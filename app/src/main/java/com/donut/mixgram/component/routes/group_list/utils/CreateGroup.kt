@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.donut.mixgram.component.common.MixDialogBuilder
 import com.donut.mixgram.util.InfoText
 import com.donut.mixgram.util.addChatGroup
-import com.donut.mixgram.util.generateEcdsaKeyPair
+import com.donut.mixgram.util.generateKeyPair
 import com.donut.mixgram.util.objects.ChatGroup
 import com.donut.mixgram.util.showToast
 
@@ -27,39 +27,41 @@ fun createGroup() {
         var repoUrl by mutableStateOf("")
 
         setContent {
-            OutlinedTextField(
-                value = groupName,
-                onValueChange = {
-                    groupName = it
-                },
-                modifier = Modifier.fillMaxWidth(),
-                label = {
-                    Text(text = "群组名称")
-                },
-                maxLines = 2,
-            )
-            OutlinedTextField(
-                value = repoUrl,
-                onValueChange = {
-                    repoUrl = it
-                },
-                modifier = Modifier.fillMaxWidth(),
-                label = {
-                    Text(text = "仓库地址")
-                },
-                maxLines = 3,
-            )
-            OutlinedTextField(
-                value = sshKey,
-                onValueChange = {
-                    sshKey = it
-                },
-                modifier = Modifier.fillMaxWidth(),
-                label = {
-                    Text(text = "SSH私钥")
-                },
-                maxLines = 5,
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                OutlinedTextField(
+                    value = groupName,
+                    onValueChange = {
+                        groupName = it
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = {
+                        Text(text = "群组名称")
+                    },
+                    maxLines = 2,
+                )
+                OutlinedTextField(
+                    value = repoUrl,
+                    onValueChange = {
+                        repoUrl = it
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = {
+                        Text(text = "仓库地址(SSH格式)")
+                    },
+                    maxLines = 3,
+                )
+                OutlinedTextField(
+                    value = sshKey,
+                    onValueChange = {
+                        sshKey = it
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = {
+                        Text(text = "SSH私钥")
+                    },
+                    maxLines = 5,
+                )
+            }
         }
 
         setNegativeButton("生成密钥对") {
@@ -95,7 +97,7 @@ fun createGroup() {
 
 fun generateSSHKeyPair() {
 
-    val keyPair = generateEcdsaKeyPair("mixgram")
+    val keyPair = generateKeyPair("mixgram")
 
     MixDialogBuilder("生成结果", autoClose = false).apply {
         setContent {

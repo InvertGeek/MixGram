@@ -10,7 +10,6 @@ import com.donut.mixgram.component.common.CommonSwitch
 import com.donut.mixgram.component.common.MixDialogBuilder
 import com.donut.mixgram.component.common.SingleSelectItemList
 import com.donut.mixgram.component.nav.MixNavPage
-import com.donut.mixgram.component.nav.NavTitle
 import com.donut.mixgram.component.routes.settings.utils.SettingButton
 import com.donut.mixgram.component.routes.settings.utils.setUserProfile
 import com.donut.mixgram.ui.theme.Theme

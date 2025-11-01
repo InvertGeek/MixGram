@@ -57,8 +57,8 @@ fun editGroup(group: ChatGroup) {
                         }
                     }
                 }
-                SettingButton(text = "SSH密钥: ") {
-                    setStringValue("设置SSH秘钥", group.sshKey, "SSH秘钥", {
+                SettingButton(text = "SSH私钥: ") {
+                    setStringValue("设置SSH私钥", group.sshKey, "SSH私钥", {
                         val newGroup = group.copy(sshKey = it.trim())
                         editChatGroup(group, newGroup)
                         showToast("修改成功")
