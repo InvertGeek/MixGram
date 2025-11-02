@@ -11,11 +11,13 @@ import com.donut.mixgram.component.common.MixDialogBuilder
 import com.donut.mixgram.component.common.SingleSelectItemList
 import com.donut.mixgram.component.nav.MixNavPage
 import com.donut.mixgram.component.routes.settings.utils.SettingButton
+import com.donut.mixgram.component.routes.settings.utils.setGitProfile
 import com.donut.mixgram.component.routes.settings.utils.setUserProfile
 import com.donut.mixgram.ui.theme.Theme
 import com.donut.mixgram.ui.theme.currentTheme
 import com.donut.mixgram.ui.theme.enableAutoDarkMode
 import com.donut.mixgram.util.CHAT_USER_NAME
+import com.donut.mixgram.util.GIT_USER_NAME
 import com.donut.mixgram.util.UNLOCK_PASSWORD
 import com.donut.mixgram.util.mixfile.JavaScriptUploader
 import com.donut.mixgram.util.mixfile.MIXFILE_UPLOADER
@@ -32,6 +34,10 @@ val MixSettings = MixNavPage(
 
     SettingButton(text = "用户信息: ${CHAT_USER_NAME}") {
         setUserProfile()
+    }
+
+    SettingButton(text = "Git用户信息: ${GIT_USER_NAME}") {
+        setGitProfile()
     }
 
     SettingButton(text = "文件上传线路: $MIXFILE_UPLOADER") {
