@@ -33,7 +33,6 @@ import com.donut.mixgram.util.errorDialog
 import com.donut.mixgram.util.ignoreError
 import com.donut.mixgram.util.mixfile.selectFilesUpload
 import com.donut.mixgram.util.objects.ChatGroup
-import com.donut.mixgram.util.showToast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -66,7 +65,6 @@ fun SendMessage(group: ChatGroup) {
                     }
                 }) {
                 group.sendMessage(message)
-                showToast("发送成功")
             }
             sending = false
             ignoreError {
