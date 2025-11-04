@@ -11,6 +11,7 @@ import com.donut.mixgram.component.common.MixDialogBuilder
 import com.donut.mixgram.component.common.SingleSelectItemList
 import com.donut.mixgram.component.nav.MixNavPage
 import com.donut.mixgram.component.routes.settings.utils.SettingButton
+import com.donut.mixgram.component.routes.settings.utils.manageGroupList
 import com.donut.mixgram.component.routes.settings.utils.setGitProfile
 import com.donut.mixgram.component.routes.settings.utils.setUserProfile
 import com.donut.mixgram.ui.theme.Theme
@@ -34,6 +35,10 @@ val MixSettings = MixNavPage(
 
     SettingButton(text = "用户信息: ${CHAT_USER_NAME}") {
         setUserProfile()
+    }
+
+    SettingButton(text = "群组数据管理: ", buttonText = "打开") {
+        manageGroupList()
     }
 
     SettingButton(text = "Git用户信息: ${GIT_USER_NAME}") {

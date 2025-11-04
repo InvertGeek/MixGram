@@ -49,11 +49,11 @@ import io.ktor.http.isSuccess
 import io.ktor.utils.io.copyAndClose
 import io.ktor.utils.io.streams.asByteWriteChannel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.job
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
-import kotlin.coroutines.coroutineContext
 
 suspend fun selectFilesUpload(
     single: Boolean = false,
@@ -194,7 +194,7 @@ suspend fun saveFileToStorage(
 
 
     val fileUri = resolver.insert(storeUri, contentValues)
-    coroutineContext.job.invokeOnCompletion { throwable ->
+    currentCoroutineContext().job.invokeOnCompletion { throwable ->
         if (throwable !is CancellationException) {
             return@invokeOnCompletion
         }
