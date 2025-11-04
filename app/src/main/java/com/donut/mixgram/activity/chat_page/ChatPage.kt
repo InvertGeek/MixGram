@@ -1,11 +1,13 @@
 package com.donut.mixgram.activity.chat_page
 
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
@@ -31,6 +33,8 @@ class ChatPage : MixActivity("chat_page") {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // 禁止布局随键盘变化而调整
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
         val groupName = intent.getStringExtra("group")
         val group = CHAT_GROUPS.find { it.name.contentEquals(groupName) }
         setContent {
@@ -43,11 +47,13 @@ class ChatPage : MixActivity("chat_page") {
                         }
                         SendMessage(group)
                     },
-                    modifier = Modifier.pointerInput(Unit) {
-                        detectTapGestures {
-                            focusManager.clearFocus()
+                    modifier = Modifier
+                        .imePadding()
+                        .pointerInput(Unit) {
+                            detectTapGestures {
+                                focusManager.clearFocus()
+                            }
                         }
-                    }
                 ) { padValue ->
                     Column(
                         modifier = Modifier
