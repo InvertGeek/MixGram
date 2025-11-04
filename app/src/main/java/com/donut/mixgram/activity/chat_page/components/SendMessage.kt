@@ -113,7 +113,6 @@ fun SendMessage(group: ChatGroup) {
             onValueChange = { input = it },
             maxLines = 3,
             placeholder = { Text("输入消息...") },
-            shape = RoundedCornerShape(50)
         )
 
         Spacer(modifier = Modifier.width(10.dp))
