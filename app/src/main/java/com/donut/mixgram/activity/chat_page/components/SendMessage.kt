@@ -79,7 +79,7 @@ fun SendMessage(group: ChatGroup) {
             .fillMaxWidth()
             .padding(top = 5.dp, start = 10.dp, end = 10.dp, bottom = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.Bottom
     ) {
         if (presetMsg.isNotEmpty()) {
             Row(
