@@ -12,6 +12,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -100,21 +101,26 @@ fun UnLockScreen() {
 fun MainContent() {
 
     MainTheme {
-        AnimatedVisibility(
-            ENCRYPTED_DATA.isNotEmpty(),
-            enter = slideInVertically { it },
-            exit = slideOutVertically { it }) {
-            UnLockScreen()
-            return@AnimatedVisibility
-        }
-
-        AnimatedVisibility(
-            visible = ENCRYPTED_DATA.isEmpty(),
-            enter = slideInVertically { -it },
-            exit = slideOutVertically { -it }
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
         ) {
-            NavComponent()
-            return@AnimatedVisibility
+            AnimatedVisibility(
+                ENCRYPTED_DATA.isNotEmpty(),
+                enter = slideInVertically { it },
+                exit = slideOutVertically { it }) {
+                UnLockScreen()
+                return@AnimatedVisibility
+            }
+
+            AnimatedVisibility(
+                visible = ENCRYPTED_DATA.isEmpty(),
+                enter = slideInVertically { -it },
+                exit = slideOutVertically { -it }
+            ) {
+                NavComponent()
+                return@AnimatedVisibility
+            }
         }
     }
 
