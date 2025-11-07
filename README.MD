@@ -128,7 +128,7 @@ MixGram 将 **Git 的 commit 记录** 作为聊天记录。
 
 - **mixgram-core**（核心 Git 交互模块）  
   📦 项目地址：  
-  > 🔗 [https://github.com/InvertGeek/mixgram-core](https://github.com/InvertGeek/mixgram-core])
+  > 🔗 [https://github.com/InvertGeek/mixgram-core](https://github.com/InvertGeek/mixgram-core)
 
 
 ## ⭐ Github Star
