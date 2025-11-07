@@ -11,7 +11,6 @@ import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.decode.SvgDecoder
 import coil.decode.VideoFrameDecoder
-import com.donut.mixgram.core.Core
 import com.donut.mixgram.util.encryptGroups
 import com.donut.mixgram.util.getAppVersionName
 import com.donut.mixgram.util.loopTask
@@ -25,7 +24,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import okhttp3.OkHttpClient
-import java.io.File
 
 val appScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
@@ -53,7 +51,6 @@ class App : Application(), ImageLoaderFactory {
         MMKV.initialize(this)
         kv = MMKV.defaultMMKV()
         kv.enableCompareBeforeSet()
-        Core.setBaseDir(File(app.cacheDir, "repos").absolutePath)
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
             showError(e)
             if (Looper.myLooper() == null) {
