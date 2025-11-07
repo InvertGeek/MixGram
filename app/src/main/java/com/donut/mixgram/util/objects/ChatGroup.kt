@@ -11,6 +11,8 @@ import com.donut.mixgram.util.GIT_USER_EMAIL
 import com.donut.mixgram.util.GIT_USER_NAME
 import com.donut.mixgram.util.catchError
 import com.donut.mixgram.util.withBlockingTimeout
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -23,6 +25,11 @@ data class ChatGroup(
     val date: Long = System.currentTimeMillis(),
     val messageSent: Int = 0,
 ) {
+    @kotlinx.serialization.Transient
+    private val mutex = Mutex()
+
+    @kotlinx.serialization.Transient
+    var timeout = 1000 * 20L
 
     companion object {
         fun parseShareCode(shareCode: String): ChatGroup? {
@@ -95,36 +102,45 @@ data class ChatGroup(
     }
 
 
-    suspend fun trimCommits(keep: Int) = withBlockingTimeout(1000 * 10) {
+    suspend fun trimCommits(keep: Int) = withBlockingTimeout(timeout) {
         updateAuthorInfo()
-        Core.trimOldCommits(repoUrl, sshKey, keep.toLong())
+        mutex.withLock {
+            Core.trimOldCommits(repoUrl, sshKey, keep.toLong())
+        }
     }
 
 
     suspend fun fetchCommits(): List<CommitMessage>? =
-        withBlockingTimeout(1000 * 10) {
-            fetchCommits(repoUrl, sshKey)
+        withBlockingTimeout(timeout) {
+            val result = mutex.withLock { Core.fetchCommitsJSON(repoUrl, sshKey, 0) }
+            result.parseJsonObject<List<CommitMessage>>()
         }
 
 
     suspend fun pushCommit(message: String) =
-        withBlockingTimeout(1000 * 10) {
+        withBlockingTimeout(timeout) {
             updateAuthorInfo()
-            Core.pushCommit(repoUrl, sshKey, message)
+            mutex.withLock {
+                Core.pushCommit(repoUrl, sshKey, message)
+            }
         }
 
 
     suspend fun editCommit(hash: String, message: String) =
-        withBlockingTimeout(1000 * 10) {
+        withBlockingTimeout(timeout) {
             updateAuthorInfo()
-            Core.modifyCommit(repoUrl, sshKey, hash, message)
+            mutex.withLock {
+                Core.modifyCommit(repoUrl, sshKey, hash, message)
+            }
         }
 
 
     suspend fun deleteCommit(hash: String) =
-        withBlockingTimeout(1000 * 10) {
+        withBlockingTimeout(timeout) {
             updateAuthorInfo()
-            Core.deleteCommit(repoUrl, sshKey, hash)
+            mutex.withLock {
+                Core.deleteCommit(repoUrl, sshKey, hash)
+            }
         }
 
 }

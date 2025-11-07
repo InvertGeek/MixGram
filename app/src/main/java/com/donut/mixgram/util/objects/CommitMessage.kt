@@ -3,7 +3,6 @@ package com.donut.mixgram.util.objects
 import com.donut.mixfile.server.core.objects.MixShareInfo.Companion.ENCODER
 import com.donut.mixfile.server.core.utils.parseJsonObject
 import com.donut.mixfile.server.core.utils.toJsonString
-import com.donut.mixgram.core.Core
 import com.donut.mixgram.util.CHAT_USER_NAME
 import com.donut.mixgram.util.aes.decryptAES
 import com.donut.mixgram.util.aes.encryptAES
@@ -88,5 +87,3 @@ data class UserMessage(
 
 }
 
-fun fetchCommits(repoUrl: String, sshKey: String) = Core.fetchCommitsJSON(repoUrl, sshKey, 0)
-    .parseJsonObject<List<CommitMessage>>()

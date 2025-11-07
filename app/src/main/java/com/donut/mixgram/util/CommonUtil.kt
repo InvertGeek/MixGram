@@ -382,7 +382,7 @@ fun getIpAddressInLocalNetwork(): String {
 
 suspend fun <T> withBlockingTimeout(
     timeoutMs: Long,
-    block: () -> T
+    block: suspend () -> T
 ): T? = withTimeoutOrNull(timeoutMs) {
     suspendCancellableCoroutine<T> { cont ->
         val job = appScope.launch(Dispatchers.IO) {
