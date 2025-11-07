@@ -1,5 +1,8 @@
 package com.donut.mixgram.component
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,7 +14,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,8 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.donut.mixgram.component.nav.NavComponent
-import com.donut.mixgram.component.routes.autoCheckUpdate
-import com.donut.mixgram.component.routes.checkForUpdates
 import com.donut.mixgram.component.routes.settings.utils.setStringValue
 import com.donut.mixgram.ui.theme.MainTheme
 import com.donut.mixgram.util.ENCRYPTED_DATA
@@ -98,18 +98,26 @@ fun UnLockScreen() {
 
 @Composable
 fun MainContent() {
+
     MainTheme {
-        if (ENCRYPTED_DATA.isNotEmpty()) {
+        AnimatedVisibility(
+            ENCRYPTED_DATA.isNotEmpty(),
+            enter = slideInVertically { it },
+            exit = slideOutVertically { it }) {
             UnLockScreen()
-            return@MainTheme
+            return@AnimatedVisibility
         }
-        LaunchedEffect(Unit) {
-            if (autoCheckUpdate) {
-                checkForUpdates()
-            }
+
+        AnimatedVisibility(
+            visible = ENCRYPTED_DATA.isEmpty(),
+            enter = slideInVertically { -it },
+            exit = slideOutVertically { -it }
+        ) {
+            NavComponent()
+            return@AnimatedVisibility
         }
-        NavComponent()
     }
+
 }
 
 
