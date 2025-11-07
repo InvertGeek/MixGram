@@ -1,7 +1,6 @@
 package com.donut.mixgram.activity.chat_page
 
 import android.os.Bundle
-import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
@@ -33,8 +32,6 @@ class ChatPage : MixActivity("chat_page") {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // 禁止布局随键盘变化而调整
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
         val groupName = intent.getStringExtra("group")
         val group = CHAT_GROUPS.find { it.name.contentEquals(groupName) }
         setContent {
