@@ -59,7 +59,7 @@ fun ChatScreen(group: ChatGroup) {
             }
             while (true) {
                 fetchMessages()
-                delay(1000)
+                delay(500)
             }
         }
     }
