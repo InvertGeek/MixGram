@@ -11,6 +11,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.donut.mixgram.component.nav.NavComponent
+import com.donut.mixgram.component.routes.autoCheckUpdate
+import com.donut.mixgram.component.routes.checkForUpdates
 import com.donut.mixgram.component.routes.settings.utils.setStringValue
 import com.donut.mixgram.ui.theme.MainTheme
 import com.donut.mixgram.util.ENCRYPTED_DATA
@@ -99,6 +102,11 @@ fun MainContent() {
         if (ENCRYPTED_DATA.isNotEmpty()) {
             UnLockScreen()
             return@MainTheme
+        }
+        LaunchedEffect(Unit) {
+            if (autoCheckUpdate) {
+                checkForUpdates()
+            }
         }
         NavComponent()
     }
