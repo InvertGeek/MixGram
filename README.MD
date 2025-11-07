@@ -55,7 +55,7 @@ MixGram 将 **Git 的 commit 记录** 作为聊天记录。
      - [GitCode](https://gitcode.com)
    - 推荐使用 **Coding.net**（支持单仓库级别 SSH 写入秘钥）  
      Gitee 与 GitCode 只能给整个账号配置 SSH 具有写入权限的秘钥。  
-     若使用后两者，建议使用小号以防止账户泄露。
+     若使用后两者，建议使用小号以防止产生账户安全问题。
 
 2. **创建仓库**
    - 登录后创建项目 → 仓库  
