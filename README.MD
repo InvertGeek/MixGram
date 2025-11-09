@@ -3,7 +3,8 @@
 **基于 Git 协议的安卓聊天 APP**  
 将任何互联网上公开的 Git 服务作为聊天服务器     
 为您提供真正的 **端到端加密** 聊天，任何第三方无法得知聊天内容  
-下载: https://github.com/InvertGeek/MixGram/releases
+下载: https://github.com/InvertGeek/MixGram/releases  
+TG群: https://t.me/ivgeek
 
 ---
 
